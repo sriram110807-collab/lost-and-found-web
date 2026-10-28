@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('About Us')}"></head>
+<body class="bg-main">
+
+    <!-- Navbar -->
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <!-- Global Alerts -->
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="py-5">
+        <div class="container">
+            <!-- Header Section -->
+            <div class="text-center max-w-700 mx-auto mb-5">
+                <span class="badge bg-teal bg-opacity-10 text-teal px-3 py-1.5 rounded-pill fw-semibold mb-2" style="background-color: var(--accent-teal-light); color: var(--accent-teal);">ABOUT THE PLATFORM</span>
+                <h1 class="h2 fw-bold text-navy mb-3">Reuniting Campus Property with Confidence</h1>
+                <p class="text-secondary leading-relaxed">
+                    BU Finder is a community-driven web application built to streamline the lost-and-found recovery process across university grounds, hostels, sports complexes, and libraries.
+                </p>
+            </div>
+
+            <!-- Features Grid -->
+            <div class="row g-4 mb-5">
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm rounded-4 p-4 bg-white text-center">
+                        <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-inline-flex justify-content-center align-items-center mx-auto mb-3" style="width: 56px; height: 56px;">
+                            <i class="bi bi-shield-lock-fill fs-3"></i>
+                        </div>
+                        <h5 class="fw-bold h6 text-navy mb-2">False-Claim Protection</h5>
+                        <p class="text-muted small mb-0">
+                            Distinguishing details, serial numbers, and private marks remain confidential so claimants must prove legitimate ownership.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm rounded-4 p-4 bg-white text-center">
+                        <div class="rounded-circle text-white d-inline-flex justify-content-center align-items-center mx-auto mb-3" style="width: 56px; height: 56px; background-color: var(--accent-teal);">
+                            <i class="bi bi-diagram-3-fill fs-3"></i>
+                        </div>
+                        <h5 class="fw-bold h6 text-navy mb-2">Hierarchical Taxonomy</h5>
+                        <p class="text-muted small mb-0">
+                            Categories, dynamic sub-types, brands, and colors enable instant precision filtering matching the original BU Finder taxonomy.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm rounded-4 p-4 bg-white text-center">
+                        <div class="rounded-circle bg-success bg-opacity-10 text-success d-inline-flex justify-content-center align-items-center mx-auto mb-3" style="width: 56px; height: 56px;">
+                            <i class="bi bi-person-check-fill fs-3"></i>
+                        </div>
+                        <h5 class="fw-bold h6 text-navy mb-2">Verified Handover</h5>
+                        <p class="text-muted small mb-0">
+                            Reporters and administrators review submitted proof before approving claims and marking records as safely resolved.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Technology Stack Summary -->
+            <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
+                <h4 class="h5 fw-bold text-navy mb-4 d-flex align-items-center gap-2">
+                    <i class="bi bi-cpu-fill text-teal"></i> Architectural &amp; Technology Stack
+                </h4>
+                <div class="row g-4">
+                    <div class="col-md-3 col-6">
+                        <div class="border rounded-3 p-3 text-center bg-light">
+                            <i class="bi bi-filetype-java text-danger fs-1"></i>
+                            <h6 class="fw-bold mt-2 mb-1">Java 17 &amp; Spring Boot</h6>
+                            <p class="text-muted small mb-0">Robust MVC Backend &amp; Spring Security 6</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="border rounded-3 p-3 text-center bg-light">
+                            <i class="bi bi-database-fill-gear text-primary fs-1"></i>
+                            <h6 class="fw-bold mt-2 mb-1">MySQL Database</h6>
+                            <p class="text-muted small mb-0">Relational persistence with Spring Data JPA</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="border rounded-3 p-3 text-center bg-light">
+                            <i class="bi bi-window-sidebar text-success fs-1"></i>
+                            <h6 class="fw-bold mt-2 mb-1">Thymeleaf &amp; HTML5</h6>
+                            <p class="text-muted small mb-0">Server-rendered secure dynamic templates</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="border rounded-3 p-3 text-center bg-light">
+                            <i class="bi bi-bootstrap-fill text-primary fs-1"></i>
+                            <h6 class="fw-bold mt-2 mb-1">Bootstrap 5 &amp; CSS3</h6>
+                            <p class="text-muted small mb-0">Modern navy and teal responsive interface</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

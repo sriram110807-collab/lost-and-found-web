@@ -1,0 +1,16 @@
+.git
+.gitignore
+.idea
+.settings
+.project
+.classpath
+.gradle
+gradle
+app
+target
+uploads
+*.iml
+*.log
+src/main/resources/application-local.properties
+application-local.properties
+*.md

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Register')}"></head>
+<body class="bg-main">
+
+    <!-- Navbar -->
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <!-- Global Alerts -->
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-6 col-sm-9">
+                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white p-4 p-md-5">
+                        <div class="text-center mb-4">
+                            <div class="d-inline-flex justify-content-center align-items-center rounded-circle bg-teal bg-opacity-10 text-teal mb-3" style="width: 56px; height: 56px; background-color: var(--accent-teal-light); color: var(--accent-teal);">
+                                <i class="bi bi-person-plus-fill fs-3"></i>
+                            </div>
+                            <h1 class="h4 fw-bold mb-1">Create an Account</h1>
+                            <p class="text-muted small">Join BU Finder to report and claim lost &amp; found campus belongings.</p>
+                        </div>
+
+                        <form th:action="@{/register}" th:object="${user}" method="post" novalidate>
+                            <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger">
+                                <div th:each="err : ${#fields.globalErrors()}" th:text="${err}"></div>
+                            </div>
+
+                            <!-- Full Name -->
+                            <div class="mb-3">
+                                <label class="form-label" for="fullName">Full Name <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-muted"><i class="bi bi-person"></i></span>
+                                    <input type="text" id="fullName" th:field="*{fullName}" class="form-control" th:errorclass="is-invalid" placeholder="Rahul Sharma" required>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}">Full name is required.</div>
+                                </div>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="mb-3">
+                                <label class="form-label" for="email">Campus / Personal Email <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-muted"><i class="bi bi-envelope"></i></span>
+                                    <input type="email" id="email" th:field="*{email}" class="form-control" th:errorclass="is-invalid" placeholder="student@bennett.edu.in" required>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">Valid email is required.</div>
+                                </div>
+                            </div>
+
+                            <!-- Phone -->
+                            <div class="mb-3">
+                                <label class="form-label" for="phone">Phone Number (Optional)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-muted"><i class="bi bi-telephone"></i></span>
+                                    <input type="text" id="phone" th:field="*{phone}" class="form-control" placeholder="+91 9876543210">
+                                </div>
+                                <small class="text-muted">Used for claim verification and handover coordination.</small>
+                            </div>
+
+                            <!-- Password -->
+                            <div class="row g-2 mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label" for="regPassword">Password <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light text-muted"><i class="bi bi-lock"></i></span>
+                                        <input type="password" id="regPassword" th:field="*{password}" class="form-control" th:errorclass="is-invalid" placeholder="At least 6 chars" required>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Password required.</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="confirmPassword">Confirm Password <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light text-muted"><i class="bi bi-shield-check"></i></span>
+                                        <input type="password" id="confirmPassword" th:field="*{confirmPassword}" class="form-control" th:errorclass="is-invalid" placeholder="Repeat password" required>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}">Must match.</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-teal w-100 py-2 mb-3 shadow-sm">
+                                <i class="bi bi-person-check me-1"></i> Complete Registration
+                            </button>
+                        </form>
+
+                        <div class="text-center mt-3 pt-3 border-top small text-muted">
+                            Already registered?
+                            <a th:href="@{/login}" class="fw-bold text-teal">Sign In here</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

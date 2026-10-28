@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Manage Claims - Admin')}"></head>
+<body class="bg-main">
+
+    <!-- Navbar -->
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <!-- Global Alerts -->
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="py-4">
+        <div class="container">
+            <!-- Header -->
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+                <div>
+                    <div class="small text-muted"><a th:href="@{/admin}">&laquo; Back to Admin Dashboard</a></div>
+                    <h1 class="h3 fw-bold mb-0 text-navy">Manage Claim Verification Requests</h1>
+                </div>
+                <div>
+                    <span class="badge bg-warning text-dark px-3 py-2 fs-6">
+                        <span th:text="${pendingCount}">0</span> Pending Verification
+                    </span>
+                </div>
+            </div>
+
+            <!-- Table of Claims -->
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+                <div class="table-responsive" th:if="${not #lists.isEmpty(claims)}">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light small text-uppercase text-muted">
+                            <tr>
+                                <th class="ps-4">ID</th>
+                                <th>Target Item</th>
+                                <th>Claimant Info</th>
+                                <th>Proof / Verification Details</th>
+                                <th>Submitted</th>
+                                <th>Status</th>
+                                <th class="text-end pe-4">Decision Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="claim : ${claims}">
+                                <td class="ps-4 font-monospace" th:text="'#' + ${claim.id}">#1</td>
+                                <td>
+                                    <a th:href="@{'/items/' + ${claim.item.id}}" class="fw-bold text-dark text-decoration-none" th:text="${claim.item.title}">Item Title</a>
+                                    <div class="text-muted small">
+                                        Reporter: <span th:text="${claim.item.user.fullName}">Reporter</span>
+                                    </div>
+                                    <div th:if="${claim.item.identifyingDetails != null}" class="text-warning small">
+                                        <i class="bi bi-key-fill"></i> Secret: <span th:text="${claim.item.identifyingDetails}">Secret</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="fw-semibold text-dark small" th:text="${claim.claimantName}">Name</div>
+                                    <div class="text-muted small" th:text="${claim.claimantEmail}">email</div>
+                                    <div class="text-muted small" th:text="${claim.claimantPhone}">phone</div>
+                                </td>
+                                <td style="max-width: 280px;">
+                                    <div class="p-2 bg-light rounded small" th:text="${claim.proofDescription}">Proof description...</div>
+                                    <small th:if="${claim.reviewerNotes != null}" class="text-muted d-block mt-1">
+                                        <em>Note: <span th:text="${claim.reviewerNotes}">Notes</span></em>
+                                    </small>
+                                </td>
+                                <td class="small text-muted" th:text="${#temporals.format(claim.claimDate, 'dd MMM yyyy')}">Date</td>
+                                <td>
+                                    <span th:if="${claim.status.name() == 'PENDING'}" class="status-badge-pending">PENDING</span>
+                                    <span th:if="${claim.status.name() == 'APPROVED'}" class="status-badge-resolved">APPROVED</span>
+                                    <span th:if="${claim.status.name() == 'REJECTED'}" class="status-badge-closed">REJECTED</span>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <form th:action="@{'/admin/claims/' + ${claim.id} + '/status'}" method="post" class="d-inline-flex gap-1 justify-content-end">
+                                        <input type="hidden" name="reviewerNotes" value="Processed by Administrator">
+                                        <button type="submit" name="status" value="APPROVED" class="btn btn-sm btn-outline-success" title="Approve Claim" th:disabled="${claim.status.name() == 'APPROVED'}">
+                                            <i class="bi bi-check-lg"></i> Approve
+                                        </button>
+                                        <button type="submit" name="status" value="REJECTED" class="btn btn-sm btn-outline-danger" title="Reject Claim" th:disabled="${claim.status.name() == 'REJECTED'}">
+                                            <i class="bi bi-x-lg"></i> Reject
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="empty-state" th:if="${#lists.isEmpty(claims)}">
+                    <p class="text-muted mb-0">No claim requests in the system.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

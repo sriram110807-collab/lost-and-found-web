@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head(${item.title})}"></head>
+<body>
+
+    <!-- Navbar -->
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <!-- Global Alerts -->
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="py-4">
+        <div class="container">
+            <!-- Breadcrumbs -->
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb small">
+                    <li class="breadcrumb-item"><a th:href="@{/}">Home</a></li>
+                    <li class="breadcrumb-item"><a th:href="@{/items}">Items</a></li>
+                    <li class="breadcrumb-item active" aria-current="page" th:text="${item.title}">Item Details</li>
+                </ol>
+            </nav>
+
+            <div class="row g-4">
+                <!-- Left Column: Item Image & Key Attributes -->
+                <div class="col-lg-5">
+                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4 bg-white">
+                        <div class="position-relative bg-light text-center p-4" style="min-height: 320px; display: flex; align-items: center; justify-content: center;">
+                            <img th:if="${item.imagePath != null}" th:src="@{'/uploads/' + ${item.imagePath}}" class="img-fluid rounded-3 shadow-sm" style="max-height: 380px; object-fit: contain;" alt="Item Photo">
+                            <div th:unless="${item.imagePath != null}" class="text-muted text-center py-5">
+                                <i class="bi bi-image fs-1 opacity-50 d-block mb-2"></i>
+                                <span>No Photo Attached</span>
+                            </div>
+
+                            <!-- Badges -->
+                            <span th:if="${item.type.name() == 'LOST'}" class="position-absolute top-0 start-0 m-3 item-badge-lost fs-6">
+                                <i class="bi bi-question-circle"></i> LOST
+                            </span>
+                            <span th:if="${item.type.name() == 'FOUND'}" class="position-absolute top-0 start-0 m-3 item-badge-found fs-6">
+                                <i class="bi bi-check-circle"></i> FOUND
+                            </span>
+
+                            <span class="position-absolute top-0 end-0 m-3">
+                                <span th:if="${item.status.name() == 'ACTIVE'}" class="status-badge-active fs-6">ACTIVE</span>
+                                <span th:if="${item.status.name() == 'CLAIM_PENDING'}" class="status-badge-pending fs-6">CLAIM PENDING</span>
+                                <span th:if="${item.status.name() == 'RESOLVED'}" class="status-badge-resolved fs-6">RESOLVED</span>
+                                <span th:if="${item.status.name() == 'CLOSED'}" class="status-badge-closed fs-6">CLOSED</span>
+                            </span>
+                        </div>
+
+                        <!-- Technical Specs Table (reusing original BU Finder parameters) -->
+                        <div class="card-body p-4 border-top">
+                            <h6 class="fw-bold text-navy mb-3"><i class="bi bi-list-check me-1 text-teal"></i> Classification Specs</h6>
+                            <div class="row g-2 small">
+                                <div class="col-6 text-muted">Category:</div>
+                                <div class="col-6 fw-semibold text-end" th:text="${item.category}">Category</div>
+
+                                <div class="col-6 text-muted">Sub-type:</div>
+                                <div class="col-6 fw-semibold text-end" th:text="${item.subType != null ? item.subType : 'N/A'}">Sub-type</div>
+
+                                <div class="col-6 text-muted">Brand:</div>
+                                <div class="col-6 fw-semibold text-end" th:text="${item.brand != null ? item.brand : 'N/A'}">Brand</div>
+
+                                <div class="col-6 text-muted">Color:</div>
+                                <div class="col-6 fw-semibold text-end" th:text="${item.color != null ? item.color : 'N/A'}">Color</div>
+
+                                <div class="col-6 text-muted">Report ID:</div>
+                                <div class="col-6 fw-semibold text-end font-monospace">#<span th:text="${item.id}">1</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Owner / Admin Controls Card -->
+                    <div th:if="${isOwner or isAdmin}" class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+                        <h6 class="fw-bold text-navy mb-3"><i class="bi bi-gear-fill me-1 text-primary"></i> Management Actions</h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            <a th:href="@{'/items/' + ${item.id} + '/edit'}" class="btn btn-outline-primary btn-sm flex-grow-1">
+                                <i class="bi bi-pencil me-1"></i> Edit Report
+                            </a>
+                            <form th:action="@{'/items/' + ${item.id} + '/delete'}" method="post" class="flex-grow-1" onsubmit="return confirm('Are you sure you want to permanently delete this report?');">
+                                <button type="submit" class="btn btn-outline-danger btn-sm w-100">
+                                    <i class="bi bi-trash me-1"></i> Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Item Information & Claim Mechanism -->
+                <div class="col-lg-7">
+                    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+                        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+                            <span class="badge bg-light text-primary border px-3 py-1.5" th:text="${item.category}">Category</span>
+                            <span class="text-muted small">
+                                <i class="bi bi-clock me-1"></i> Reported on <span th:text="${#temporals.format(item.createdAt, 'dd MMM yyyy, hh:mm a')}">Date</span>
+                            </span>
+                        </div>
+
+                        <h1 class="h3 fw-bold mb-3" th:text="${item.title}">Item Title Headline</h1>
+
+                        <!-- Incident Details Ribbon -->
+                        <div class="p-3 bg-light rounded-3 mb-4 d-flex flex-wrap gap-4 text-muted small">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-calendar-event text-primary fs-5"></i>
+                                <div>
+                                    <div class="text-uppercase small" style="font-size: 0.72rem;">Date of Event</div>
+                                    <div class="fw-bold text-dark" th:text="${#temporals.format(item.dateEvent, 'EEEE, dd MMMM yyyy')}">Date</div>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-geo-alt-fill text-danger fs-5"></i>
+                                <div>
+                                    <div class="text-uppercase small" style="font-size: 0.72rem;">Location on Campus</div>
+                                    <div class="fw-bold text-dark" th:text="${item.location}">Location</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Full Description -->
+                        <h6 class="fw-bold text-navy mb-2">Description</h6>
+                        <p class="text-secondary leading-relaxed mb-4" th:text="${item.description != null && item.description != '' ? item.description : 'No additional description provided.'}">
+                            Full detailed description of where and when the item was lost or discovered...
+                        </p>
+
+                        <!-- False-Claim Protection Notice -->
+                        <div class="card bg-teal-subtle border-0 rounded-3 p-3 mb-4" style="background-color: var(--accent-teal-subtle); border-left: 4px solid var(--accent-teal) !important;">
+                            <div class="d-flex gap-2">
+                                <i class="bi bi-shield-lock-fill text-teal fs-4"></i>
+                                <div>
+                                    <h6 class="fw-bold text-teal mb-1" style="color: var(--accent-teal);">Ownership Verification Protection</h6>
+                                    <p class="small text-secondary mb-0">
+                                        Distinguishing marks, serial codes, or contents are kept confidential by the system.
+                                        To claim this item, you will be required to describe specific verifying details known only to the genuine owner.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Confidential details visible ONLY to Reporter or Admin -->
+                        <div th:if="${(isOwner or isAdmin) and item.identifyingDetails != null and item.identifyingDetails != ''}"
+                             class="card bg-warning bg-opacity-10 border-warning border-opacity-25 rounded-3 p-3 mb-4">
+                            <div class="d-flex gap-2">
+                                <i class="bi bi-eye-slash-fill text-warning fs-5"></i>
+                                <div>
+                                    <h6 class="fw-bold text-dark mb-1">Confidential Distinguishing Details (Private)</h6>
+                                    <p class="small text-dark mb-0 font-monospace" th:text="${item.identifyingDetails}">Secret details...</p>
+                                    <small class="text-muted d-block mt-1">This text is hidden from the public and only visible to you for verifying incoming claims.</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Reporter Contact Box (Protected) -->
+                        <div class="border-top pt-4 mt-2">
+                            <h6 class="fw-bold text-navy mb-3"><i class="bi bi-person-badge me-1 text-teal"></i> Reporter Information</h6>
+                            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 p-3 bg-light rounded-3">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="rounded-circle bg-navy text-white d-flex align-items-center justify-content-center fw-bold"
+                                         style="width: 44px; height: 44px; background-color: var(--primary-navy);"
+                                         th:text="${#strings.substring(item.user.fullName, 0, 1).toUpperCase()}">U</div>
+                                    <div>
+                                        <div class="fw-bold text-dark" th:text="${item.user.fullName}">Reporter Name</div>
+                                        <small class="text-muted" th:text="${item.type.name() == 'LOST' ? 'Reported Lost' : 'Found & Safeguarded'}">Role</small>
+                                    </div>
+                                </div>
+
+                                <!-- Contact Information Protected -->
+                                <div>
+                                    <div sec:authorize="isAuthenticated()">
+                                        <span class="badge bg-white text-dark border p-2 me-1">
+                                            <i class="bi bi-envelope me-1 text-teal"></i> <span th:text="${item.user.email}">user@email.com</span>
+                                        </span>
+                                        <span th:if="${item.user.phone != null}" class="badge bg-white text-dark border p-2">
+                                            <i class="bi bi-telephone me-1 text-teal"></i> <span th:text="${item.user.phone}">+91 1234567890</span>
+                                        </span>
+                                    </div>
+                                    <div sec:authorize="isAnonymous()">
+                                        <a th:href="@{/login}" class="btn btn-outline-secondary btn-sm">
+                                            <i class="bi bi-lock me-1"></i> Sign in to view contact details
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Button / Claim Submission -->
+                        <div class="mt-4 pt-3 border-top d-flex gap-3 flex-wrap">
+                            <!-- Cannot claim own item -->
+                            <div th:if="${isOwner}" class="alert alert-info w-100 mb-0 small">
+                                <i class="bi bi-info-circle me-1"></i> You are the author of this report. You can review any incoming claims in your <a th:href="@{/dashboard(tab='received')}" class="fw-bold">Dashboard</a>.
+                            </div>
+
+                            <!-- If item is already resolved -->
+                            <div th:if="${item.status.name() == 'RESOLVED'}" class="alert alert-success w-100 mb-0 small">
+                                <i class="bi bi-check-circle-fill me-1"></i> This item has already been successfully recovered and resolved!
+                            </div>
+
+                            <!-- If visitor is not owner and item is open for claims -->
+                            <div th:if="${!isOwner and item.status.name() != 'RESOLVED' and item.status.name() != 'CLOSED'}" class="w-100">
+                                <div sec:authorize="isAuthenticated()">
+                                    <button type="button" class="btn btn-teal btn-lg w-100 shadow-sm" data-bs-toggle="modal" data-bs-target="#claimModal">
+                                        <i class="bi bi-hand-index-thumb me-1"></i> This Is My Item / Submit Claim
+                                    </button>
+                                </div>
+                                <div sec:authorize="isAnonymous()">
+                                    <a th:href="@{/login}" class="btn btn-teal btn-lg w-100 shadow-sm">
+                                        <i class="bi bi-box-arrow-in-right me-1"></i> Sign In to Claim This Item
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Similar Items Section -->
+            <div class="mt-5" th:if="${not #lists.isEmpty(similarItems)}">
+                <h4 class="h5 fw-bold mb-3">Similar Items in "<span th:text="${item.category}">Category</span>"</h4>
+                <div class="row g-3">
+                    <div class="col-md-3 col-sm-6" th:each="sim : ${similarItems}">
+                        <div class="card h-100 border-0 shadow-sm rounded-3 p-3 bg-white">
+                            <span th:if="${sim.type.name() == 'LOST'}" class="item-badge-lost small mb-2 align-self-start">LOST</span>
+                            <span th:if="${sim.type.name() == 'FOUND'}" class="item-badge-found small mb-2 align-self-start">FOUND</span>
+                            <h6 class="fw-bold text-truncate mb-1" th:text="${sim.title}">Title</h6>
+                            <p class="text-muted small mb-2 text-truncate" th:text="${sim.location}">Location</p>
+                            <a th:href="@{'/items/' + ${sim.id}}" class="btn btn-outline-custom btn-sm mt-auto">View Item</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Claim Submission Modal -->
+        <div sec:authorize="isAuthenticated()" class="modal fade" id="claimModal" tabindex="-1" aria-labelledby="claimModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg rounded-4">
+                    <form th:action="@{'/items/' + ${item.id} + '/claim'}" th:object="${claimForm}" method="post">
+                        <input type="hidden" th:field="*{itemId}">
+                        <div class="modal-header bg-navy text-white rounded-top-4" style="background-color: var(--primary-navy);">
+                            <h5 class="modal-title h6 fw-bold" id="claimModalLabel">
+                                <i class="bi bi-shield-check text-info me-1"></i> Submit Ownership Verification Claim
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-4">
+                            <p class="small text-muted mb-3">
+                                To verify that you are the legitimate owner or finder of this item, please provide distinguishing proof details (e.g., unique marks, serial number, lock code, wallpaper, exact items inside).
+                            </p>
+
+                            <div class="mb-3">
+                                <label class="form-label">Your Full Name</label>
+                                <input type="text" th:field="*{claimantName}" class="form-control" required>
+                            </div>
+
+                            <div class="row g-2 mb-3">
+                                <div class="col-6">
+                                    <label class="form-label">Your Email</label>
+                                    <input type="email" th:field="*{claimantEmail}" class="form-control" required>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Phone Number</label>
+                                    <input type="text" th:field="*{claimantPhone}" class="form-control" placeholder="+91...">
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Proof of Ownership / Distinguishing Verification <span class="text-danger">*</span></label>
+                                <textarea th:field="*{proofDescription}" rows="4" class="form-control" placeholder="Provide confidential marks, serial number, or identifying details..." required></textarea>
+                                <small class="text-muted">The reporter will review this information before approving handover.</small>
+                            </div>
+                        </div>
+                        <div class="modal-footer bg-light rounded-bottom-4">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-teal btn-sm px-4">Submit Claim Request</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Contact & Help Desk')}"></head>
+<body class="bg-main">
+
+    <!-- Navbar -->
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <!-- Global Alerts -->
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="py-5">
+        <div class="container">
+            <div class="row g-5">
+                <!-- Contact Information Column -->
+                <div class="col-lg-5">
+                    <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-1.5 rounded-pill fw-semibold mb-2">CAMPUS DESK</span>
+                    <h1 class="h2 fw-bold text-navy mb-3">Lost &amp; Found Help Desk</h1>
+                    <p class="text-secondary leading-relaxed mb-4">
+                        Have questions or need assistance recovering or depositing valuable items such as laptops, wallets, or official documents? Reach out to the campus operations center.
+                    </p>
+
+                    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+                        <div class="d-flex align-items-start gap-3 mb-3">
+                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center text-primary" style="width: 44px; height: 44px;">
+                                <i class="bi bi-geo-alt-fill fs-5"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-0">Physical Help Desk</h6>
+                                <p class="text-muted small mb-0">Student Service Center, Ground Floor, Academic Block B</p>
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-start gap-3 mb-3">
+                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center text-teal" style="width: 44px; height: 44px; color: var(--accent-teal);">
+                                <i class="bi bi-envelope-fill fs-5"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-0">Email Support</h6>
+                                <p class="text-muted small mb-0">lostandfound@bennett.edu.in</p>
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-start gap-3">
+                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center text-success" style="width: 44px; height: 44px;">
+                                <i class="bi bi-clock-fill fs-5"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-0">Operating Hours</h6>
+                                <p class="text-muted small mb-0">Monday – Saturday: 9:00 AM – 6:00 PM</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card bg-teal-subtle border-0 rounded-4 p-3" style="background-color: var(--accent-teal-subtle); border-left: 4px solid var(--accent-teal) !important;">
+                        <div class="d-flex gap-2">
+                            <i class="bi bi-info-circle-fill text-teal fs-5" style="color: var(--accent-teal);"></i>
+                            <small class="text-secondary">
+                                If you have found high-value items (such as credit cards, mobile phones, or passports), please deposit them immediately at the Security Central Office.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Message Form Column -->
+                <div class="col-lg-7">
+                    <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
+                        <h4 class="h5 fw-bold text-navy mb-1">Send a Message to Support</h4>
+                        <p class="text-muted small mb-4">Leave an inquiry regarding an unlisted item or report an issue with a claim.</p>
+
+                        <form th:action="@{/contact}" method="get" onsubmit="alert('Thank you for reaching out! Your inquiry has been forwarded to the campus help desk team.'); return false;">
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label" for="contactName">Your Name <span class="text-danger">*</span></label>
+                                    <input type="text" id="contactName" class="form-control" placeholder="Rahul Sharma" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="contactEmail">Campus Email <span class="text-danger">*</span></label>
+                                    <input type="email" id="contactEmail" class="form-control" placeholder="student@bennett.edu.in" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label" for="contactSubject">Subject</label>
+                                <input type="text" id="contactSubject" class="form-control" placeholder="Inquiry about item #12 or handover protocol" required>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label" for="contactMessage">Message / Details <span class="text-danger">*</span></label>
+                                <textarea id="contactMessage" rows="5" class="form-control" placeholder="Provide full details..." required></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-teal px-4 shadow-sm">
+                                <i class="bi bi-send-fill me-1"></i> Send Inquiry
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

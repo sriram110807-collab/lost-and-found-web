@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('User Dashboard')}"></head>
+<body class="bg-main">
+
+    <!-- Navbar -->
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <!-- Global Alerts -->
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <main class="py-4">
+        <div class="container">
+            <!-- User Header Profile Card -->
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-circle text-white d-flex align-items-center justify-content-center fw-bold fs-3"
+                             style="width: 64px; height: 64px; background: linear-gradient(135deg, var(--primary-navy), var(--accent-teal));"
+                             th:text="${#strings.substring(currentUser.fullName, 0, 1).toUpperCase()}">U</div>
+                        <div>
+                            <div class="d-flex align-items-center gap-2">
+                                <h1 class="h4 fw-bold mb-0 text-navy" th:text="${currentUser.fullName}">Rahul Sharma</h1>
+                                <span class="badge bg-teal bg-opacity-10 text-teal" style="background-color: var(--accent-teal-light); color: var(--accent-teal);" th:text="${currentUser.role}">ROLE_USER</span>
+                            </div>
+                            <div class="text-muted small mt-1">
+                                <i class="bi bi-envelope me-1"></i> <span th:text="${currentUser.email}">rahul@bufinder.com</span>
+                                <span class="mx-2">•</span>
+                                <i class="bi bi-telephone me-1"></i> <span th:text="${currentUser.phone != null ? currentUser.phone : 'No phone linked'}">+91 9811122334</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <a th:href="@{/profile}" class="btn btn-outline-custom btn-sm">
+                            <i class="bi bi-gear me-1"></i> Edit Profile
+                        </a>
+                        <a th:href="@{/items/report-lost}" class="btn btn-lost btn-sm">
+                            <i class="bi bi-question-circle me-1"></i> Post Lost
+                        </a>
+                        <a th:href="@{/items/report-found}" class="btn btn-found btn-sm">
+                            <i class="bi bi-check-circle me-1"></i> Post Found
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Stats summary row -->
+                <div class="row g-3 mt-3 pt-3 border-top">
+                    <div class="col-6 col-md-3">
+                        <div class="p-3 bg-light rounded-3 text-center">
+                            <div class="fs-4 fw-bold text-navy" th:text="${myTotalReports}">0</div>
+                            <div class="small text-muted">My Total Reports</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="p-3 bg-light rounded-3 text-center">
+                            <div class="fs-4 fw-bold text-danger" th:text="${myActiveReports}">0</div>
+                            <div class="small text-muted">Active Reports</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="p-3 bg-light rounded-3 text-center">
+                            <div class="fs-4 fw-bold text-success" th:text="${myResolvedReports}">0</div>
+                            <div class="small text-muted">Resolved Items</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="p-3 bg-light rounded-3 text-center">
+                            <div class="fs-4 fw-bold text-warning" th:text="${myPendingClaimsCount}">0</div>
+                            <div class="small text-muted">Pending Verification</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Navigation Tabs -->
+            <ul class="nav nav-pills mb-4 gap-2" id="dashboardTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link rounded-pill px-4" id="items-tab" data-bs-toggle="tab" data-bs-target="#items-pane" type="button" role="tab"
+                            th:classappend="${activeTab == 'items' ? 'active' : ''}">
+                        <i class="bi bi-folder2-open me-1"></i> My Reported Items (<span th:text="${myTotalReports}">0</span>)
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link rounded-pill px-4" id="received-tab" data-bs-toggle="tab" data-bs-target="#received-pane" type="button" role="tab"
+                            th:classappend="${activeTab == 'received' ? 'active' : ''}">
+                        <i class="bi bi-inbox me-1"></i> Claims Received (<span th:text="${#lists.size(claimsReceived)}">0</span>)
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link rounded-pill px-4" id="sent-tab" data-bs-toggle="tab" data-bs-target="#sent-pane" type="button" role="tab"
+                            th:classappend="${activeTab == 'sent' ? 'active' : ''}">
+                        <i class="bi bi-send me-1"></i> Claims Sent by Me (<span th:text="${#lists.size(mySentClaims)}">0</span>)
+                    </button>
+                </li>
+            </ul>
+
+            <!-- Tab Content Panes -->
+            <div class="tab-content" id="dashboardTabsContent">
+                <!-- TAB 1: My Reported Items -->
+                <div class="tab-pane fade" id="items-pane" role="tabpanel" aria-labelledby="items-tab"
+                     th:classappend="${activeTab == 'items' ? 'show active' : ''}">
+                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+                        <div class="table-responsive" th:if="${not #lists.isEmpty(myItems)}">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light small text-uppercase text-muted">
+                                    <tr>
+                                        <th class="ps-4">Item</th>
+                                        <th>Type</th>
+                                        <th>Category</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th class="text-end pe-4">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="item : ${myItems}">
+                                        <td class="ps-4">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <img th:if="${item.imagePath != null}" th:src="@{'/uploads/' + ${item.imagePath}}" class="rounded-2 object-fit-cover" style="width: 48px; height: 48px;" alt="Thumbnail">
+                                                <div th:unless="${item.imagePath != null}" class="rounded-2 bg-light d-flex align-items-center justify-content-center text-muted" style="width: 48px; height: 48px;">
+                                                    <i class="bi bi-image"></i>
+                                                </div>
+                                                <div>
+                                                    <a th:href="@{'/items/' + ${item.id}}" class="fw-bold text-dark text-decoration-none" th:text="${item.title}">Item Title</a>
+                                                    <div class="text-muted small"><i class="bi bi-geo-alt me-1"></i><span th:text="${item.location}">Location</span></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span th:if="${item.type.name() == 'LOST'}" class="item-badge-lost small">LOST</span>
+                                            <span th:if="${item.type.name() == 'FOUND'}" class="item-badge-found small">FOUND</span>
+                                        </td>
+                                        <td th:text="${item.category}">Category</td>
+                                        <td class="small text-muted" th:text="${#temporals.format(item.dateEvent, 'dd MMM yyyy')}">Date</td>
+                                        <td>
+                                            <span th:if="${item.status.name() == 'ACTIVE'}" class="status-badge-active">ACTIVE</span>
+                                            <span th:if="${item.status.name() == 'CLAIM_PENDING'}" class="status-badge-pending">CLAIM PENDING</span>
+                                            <span th:if="${item.status.name() == 'RESOLVED'}" class="status-badge-resolved">RESOLVED</span>
+                                            <span th:if="${item.status.name() == 'CLOSED'}" class="status-badge-closed">CLOSED</span>
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            <div class="d-inline-flex gap-1">
+                                                <a th:href="@{'/items/' + ${item.id}}" class="btn btn-sm btn-outline-secondary" title="View Details">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                <a th:href="@{'/items/' + ${item.id} + '/edit'}" class="btn btn-sm btn-outline-primary" title="Edit Report">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                                <form th:action="@{'/items/' + ${item.id} + '/delete'}" method="post" class="d-inline" onsubmit="return confirm('Delete this report?');">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Report">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Empty State -->
+                        <div class="empty-state" th:if="${#lists.isEmpty(myItems)}">
+                            <i class="bi bi-folder2-open empty-state-icon"></i>
+                            <h4 class="h5 fw-bold">No Reports Created Yet</h4>
+                            <p class="text-muted small mb-3">You haven't reported any lost or found items so far.</p>
+                            <div class="d-flex justify-content-center gap-2">
+                                <a th:href="@{/items/report-lost}" class="btn btn-lost btn-sm">Report Lost Item</a>
+                                <a th:href="@{/items/report-found}" class="btn btn-found btn-sm">Report Found Item</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 2: Claims Received on My Items -->
+                <div class="tab-pane fade" id="received-pane" role="tabpanel" aria-labelledby="received-tab"
+                     th:classappend="${activeTab == 'received' ? 'show active' : ''}">
+                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+                        <div class="p-3 bg-light border-bottom">
+                            <h6 class="fw-bold mb-0 text-navy">Incoming Ownership Claims</h6>
+                            <small class="text-muted">Review proof submitted by other members before approving property return.</small>
+                        </div>
+
+                        <div class="p-4" th:if="${not #lists.isEmpty(claimsReceived)}">
+                            <div class="row g-3">
+                                <div class="col-lg-6" th:each="claim : ${claimsReceived}">
+                                    <div class="card border rounded-3 p-3 h-100 shadow-sm">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <div>
+                                                <span class="badge bg-light text-primary border small">Claim on:</span>
+                                                <a th:href="@{'/items/' + ${claim.item.id}}" class="fw-bold text-dark d-block mt-1" th:text="${claim.item.title}">Item Title</a>
+                                            </div>
+                                            <div>
+                                                <span th:if="${claim.status.name() == 'PENDING'}" class="status-badge-pending">PENDING</span>
+                                                <span th:if="${claim.status.name() == 'APPROVED'}" class="status-badge-resolved">APPROVED</span>
+                                                <span th:if="${claim.status.name() == 'REJECTED'}" class="status-badge-closed">REJECTED</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="bg-light p-2 rounded-2 small mb-3">
+                                            <div><strong>Claimant:</strong> <span th:text="${claim.claimantName}">Name</span></div>
+                                            <div><strong>Email:</strong> <span th:text="${claim.claimantEmail}">email</span></div>
+                                            <div th:if="${claim.claimantPhone != null}"><strong>Phone:</strong> <span th:text="${claim.claimantPhone}">phone</span></div>
+                                            <div class="text-muted mt-1">Submitted on: <span th:text="${#temporals.format(claim.claimDate, 'dd MMM yyyy, hh:mm a')}">Date</span></div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="small fw-bold text-muted text-uppercase">Claimant's Verification Proof:</label>
+                                            <div class="p-2 border rounded bg-white small text-secondary" th:text="${claim.proofDescription}">
+                                                Proof description details...
+                                            </div>
+                                        </div>
+
+                                        <!-- Distinguishing secret comparison hint -->
+                                        <div th:if="${claim.item.identifyingDetails != null}" class="alert alert-warning py-1 px-2 small mb-3">
+                                            <i class="bi bi-shield-lock me-1"></i><strong>Your Private Note:</strong> <span th:text="${claim.item.identifyingDetails}">Secret</span>
+                                        </div>
+
+                                        <!-- Review feedback if processed -->
+                                        <div th:if="${claim.reviewerNotes != null && claim.reviewerNotes != ''}" class="small text-muted mb-2">
+                                            <strong>Your Decision Note:</strong> <span th:text="${claim.reviewerNotes}">Notes</span>
+                                        </div>
+
+                                        <!-- Decision Form if Pending -->
+                                        <div th:if="${claim.status.name() == 'PENDING'}" class="border-top pt-3 mt-auto">
+                                            <form th:action="@{'/claims/' + ${claim.id} + '/status'}" method="post">
+                                                <div class="mb-2">
+                                                    <input type="text" name="reviewerNotes" class="form-control form-control-sm" placeholder="Optional response note to claimant...">
+                                                </div>
+                                                <div class="d-flex gap-2">
+                                                    <button type="submit" name="status" value="APPROVED" class="btn btn-success btn-sm flex-grow-1" onclick="return confirm('Approve this claim? The item will be marked as RESOLVED.');">
+                                                        <i class="bi bi-check2"></i> Approve Claim
+                                                    </button>
+                                                    <button type="submit" name="status" value="REJECTED" class="btn btn-outline-danger btn-sm" onclick="return confirm('Reject this claim?');">
+                                                        <i class="bi bi-x"></i> Reject
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="empty-state" th:if="${#lists.isEmpty(claimsReceived)}">
+                            <i class="bi bi-inbox empty-state-icon"></i>
+                            <h4 class="h5 fw-bold">No Incoming Claims</h4>
+                            <p class="text-muted small">No one has submitted a claim on your reported items yet.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 3: My Sent Claims -->
+                <div class="tab-pane fade" id="sent-pane" role="tabpanel" aria-labelledby="sent-tab"
+                     th:classappend="${activeTab == 'sent' ? 'show active' : ''}">
+                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+                        <div class="p-3 bg-light border-bottom">
+                            <h6 class="fw-bold mb-0 text-navy">Claims Sent by You</h6>
+                            <small class="text-muted">Track ownership claims you have submitted on items found by others.</small>
+                        </div>
+
+                        <div class="table-responsive" th:if="${not #lists.isEmpty(mySentClaims)}">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light small text-uppercase text-muted">
+                                    <tr>
+                                        <th class="ps-4">Item Claimed</th>
+                                        <th>Date Submitted</th>
+                                        <th>Your Proof Summary</th>
+                                        <th>Status</th>
+                                        <th>Finder's Response</th>
+                                        <th class="text-end pe-4">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="c : ${mySentClaims}">
+                                        <td class="ps-4">
+                                            <a th:href="@{'/items/' + ${c.item.id}}" class="fw-bold text-dark text-decoration-none" th:text="${c.item.title}">Item Title</a>
+                                            <div class="text-muted small" th:text="${c.item.location}">Location</div>
+                                        </td>
+                                        <td class="small text-muted" th:text="${#temporals.format(c.claimDate, 'dd MMM yyyy, hh:mm a')}">Date</td>
+                                        <td class="small text-truncate" style="max-width: 200px;" th:text="${c.proofDescription}">Proof text...</td>
+                                        <td>
+                                            <span th:if="${c.status.name() == 'PENDING'}" class="status-badge-pending">PENDING</span>
+                                            <span th:if="${c.status.name() == 'APPROVED'}" class="status-badge-resolved">APPROVED</span>
+                                            <span th:if="${c.status.name() == 'REJECTED'}" class="status-badge-closed">REJECTED</span>
+                                        </td>
+                                        <td class="small" th:text="${c.reviewerNotes != null ? c.reviewerNotes : 'Awaiting review'}">-</td>
+                                        <td class="text-end pe-4">
+                                            <a th:href="@{'/items/' + ${c.item.id}}" class="btn btn-outline-secondary btn-sm">
+                                                <i class="bi bi-eye"></i> View Item
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="empty-state" th:if="${#lists.isEmpty(mySentClaims)}">
+                            <i class="bi bi-send empty-state-icon"></i>
+                            <h4 class="h5 fw-bold">No Claims Submitted</h4>
+                            <p class="text-muted small">You haven't submitted any claims on items reported by others.</p>
+                            <a th:href="@{/items}" class="btn btn-teal btn-sm">Browse Found Items</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>
