@@ -143,12 +143,20 @@ public class ItemController {
     }
 
     @PostMapping("/report-lost")
-    public String submitReportLost(@Valid @ModelAttribute("itemForm") ItemFormDto formDto,
-                                   BindingResult bindingResult,
-                                   @AuthenticationPrincipal UserDetails userDetails,
-                                   RedirectAttributes redirectAttributes,
-                                   Model model) {
+    public String submitReportLost(@ModelAttribute("itemForm") ItemFormDto formDto,
+                               BindingResult bindingResult,
+                               @AuthenticationPrincipal UserDetails userDetails,
+                               RedirectAttributes redirectAttributes,
+                               Model model,
+                               jakarta.validation.Validator validator) {
         formDto.setType(ItemType.LOST);
+        validator.validate(formDto).forEach(violation ->
+    bindingResult.rejectValue(
+        violation.getPropertyPath().toString(),
+        "",
+        violation.getMessage()
+    )
+);
 
         if (bindingResult.hasErrors()) {
     bindingResult.getAllErrors().forEach(error ->
