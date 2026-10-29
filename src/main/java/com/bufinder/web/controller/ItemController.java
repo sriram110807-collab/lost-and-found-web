@@ -151,13 +151,13 @@ public class ItemController {
         formDto.setType(ItemType.LOST);
 
         if (bindingResult.hasErrors()) {
-            bindingResult.getAllErrors().forEach(error ->
-                System.out.println("FORM VALIDATION ERROR: " + error)
-        );
-        populateFormData(model);
-        return "items/report-lost";
-        }
-        }
+    bindingResult.getAllErrors().forEach(error ->
+        System.out.println("FORM VALIDATION ERROR: " + error)
+    );
+    populateFormData(model);
+    return "items/report-lost";
+}
+        
 
         User user = userService.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new IllegalStateException("Authenticated user not found"));
