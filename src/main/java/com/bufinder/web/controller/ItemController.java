@@ -148,7 +148,8 @@ public class ItemController {
                                @AuthenticationPrincipal UserDetails userDetails,
                                RedirectAttributes redirectAttributes,
                                Model model,
-                               jakarta.validation.Validator validator) {
+                               @org.springframework.beans.factory.annotation.Qualifier("defaultValidator")
+jakarta.validation.Validator validator) {
         formDto.setType(ItemType.LOST);
         validator.validate(formDto).forEach(violation ->
     bindingResult.rejectValue(
