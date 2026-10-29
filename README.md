@@ -1,8 +1,8 @@
-# BU FINDER — Campus Lost and Found Web Application
+# SRM FINDER — Campus Lost and Found Web Application
 
 A modern, full-stack, enterprise-grade Lost and Found web application engineered with **Java 17, Spring Boot 3, Spring Data JPA, Spring Security 6, Thymeleaf, Bootstrap 5, and MySQL**.
 
-Originally based on the Android prototype "BU Finder", this project elevates the platform into a comprehensive, responsive web application that preserves the complete hierarchical categorization taxonomy, dynamic sub-types, brands, colors, and reporting workflows while adding multi-user authentication, ownership verification claims, file uploads, role-based administration, and persistent MySQL database storage.
+Originally based on the Android prototype "SRM Finder", this project elevates the platform into a comprehensive, responsive web application that preserves the complete hierarchical categorization taxonomy, dynamic sub-types, brands, colors, and reporting workflows while adding multi-user authentication, ownership verification claims, file uploads, role-based administration, and persistent MySQL database storage.
 
 ---
 
@@ -43,8 +43,8 @@ Originally based on the Android prototype "BU Finder", this project elevates the
   - **Approve Claim:** Automatically changes the item status to `RESOLVED` and notifies the claimant with reviewer remarks.
   - **Reject Claim:** Rejects the claim with explanation and resets the item status to `ACTIVE`.
 
-### 3. Dynamic Cascading Taxonomy (BU Finder Domain Preservation)
-- Category selection dynamically updates the available **Sub-types** and **Brands** using real-time JavaScript and REST API endpoints (`/api/categories/subtypes`, `/api/categories/brands`), directly mirroring the original BU Finder Android forms:
+### 3. Dynamic Cascading Taxonomy (SRM Finder Domain Preservation)
+- Category selection dynamically updates the available **Sub-types** and **Brands** using real-time JavaScript and REST API endpoints (`/api/categories/subtypes`, `/api/categories/brands`), directly mirroring the original SRM Finder Android forms:
   - *Audio Devices* &rarr; Speakers, Headphones, Earphones &rarr; Bose, Apple, Boat, Noise, Sony, JBL, etc.
   - *Laptop & Accessories* &rarr; Laptop, Keyboard, Mouse, Charger, Sleeve &rarr; Apple, HP, Dell, Lenovo, Asus, etc.
   - *Wearables* &rarr; Spectacles, Watches, Jewellery &rarr; Casio, Titan, Oakley, Apple, G-Shock, etc.
@@ -292,7 +292,7 @@ Lost and found application/
 │   │   │   │   ├── UserService.java & Impl
 │   │   │   │   ├── ItemService.java & Impl
 │   │   │   │   ├── ClaimService.java & Impl
-│   │   │   │   ├── CategoryDataService.java  # Preserves BU Finder original taxonomy
+│   │   │   │   ├── CategoryDataService.java  # Preserves SRM Finder original taxonomy
 │   │   │   │   ├── FileUploadService.java    # Secure image upload handler
 │   │   │   │   └── DataInitializer.java      # Seeds admin, demo users, sample items
 │   │   │   ├── dto/

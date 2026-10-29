@@ -1,5 +1,5 @@
 /**
- * BU Finder - Lost and Found Application
+ * SRM Finder - Lost and Found Application
  * Client-Side JavaScript for dynamic cascading dropdowns, file preview, and interactions.
  */
 

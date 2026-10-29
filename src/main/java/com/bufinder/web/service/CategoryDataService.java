@@ -7,7 +7,7 @@ import java.util.*;
 @Service
 public class CategoryDataService {
 
-    // Mirroring categories from original Android BU Finder app Dev_Type
+    // Mirroring categories from original Android SRM Finder app Dev_Type
     private final List<String> categories = List.of(
             "Audio Devices",
             "Laptop and Accessories",
