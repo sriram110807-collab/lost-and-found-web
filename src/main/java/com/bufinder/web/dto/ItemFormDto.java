@@ -18,7 +18,7 @@ public class ItemFormDto {
     @Size(min = 3, max = 150, message = "Title must be between 3 and 150 characters")
     private String title;
 
-    @NotNull(message = "Item type (Lost or Found) is required")
+    
     private ItemType type;
 
     @NotBlank(message = "Please select a category")

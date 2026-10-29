@@ -143,22 +143,12 @@ public class ItemController {
     }
 
     @PostMapping("/report-lost")
-    public String submitReportLost(@ModelAttribute("itemForm") ItemFormDto formDto,
+    public String submitReportLost(@Valid @ModelAttribute("itemForm") ItemFormDto formDto,
                                BindingResult bindingResult,
                                @AuthenticationPrincipal UserDetails userDetails,
                                RedirectAttributes redirectAttributes,
-                               Model model,
-                               @org.springframework.beans.factory.annotation.Qualifier("defaultValidator")
-jakarta.validation.Validator validator) {
+                               Model model) {
         formDto.setType(ItemType.LOST);
-        validator.validate(formDto).forEach(violation ->
-    bindingResult.rejectValue(
-        violation.getPropertyPath().toString(),
-        "",
-        violation.getMessage()
-    )
-);
-
         if (bindingResult.hasErrors()) {
     bindingResult.getAllErrors().forEach(error ->
         System.out.println("FORM VALIDATION ERROR: " + error)
